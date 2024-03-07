@@ -1,7 +1,33 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import axios from "axios";
+import React,{useState} from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const [values, setValues] = useState({
+    email: "",
+    password: "",
+  });
+  const navigate = useNavigate();
+  axios.defaults.withCredentials=true;
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!values.email || !values.password) {
+      alert("Please fill in all fields");
+      return;
+    }
+    axios
+      .post("http://localhost:8081/login", values)
+      .then((res) => {
+        if (res.data.Status === "success") {
+          navigate("/");
+        } else {
+          alert(res.data.Error);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+
   return (
     <div className="d-flex justify-content-center align-items-center bg-light vh-100">
       <div className="bg-white p-3 rounded w-25 border border shadow">
@@ -20,7 +46,7 @@ const Login = () => {
             Login
           </h2>
         </div>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email">
               <strong>Email</strong>
@@ -29,6 +55,7 @@ const Login = () => {
               type="text"
               placeholder="Enter Email"
               name="email"
+              onChange={(e) => setValues({ ...values, email: e.target.value })}
               className="form-control rounded-0"
             />
           </div>
@@ -40,6 +67,9 @@ const Login = () => {
               type="text"
               placeholder="Enter password"
               name="password"
+              onChange={(e) =>
+                setValues({ ...values, password: e.target.value })
+              }
               className="form-control rounded-0"
             />
           </div>
@@ -55,7 +85,7 @@ const Login = () => {
           <p>You are agree to our terms and policies</p>
           <Link
             to="/register"
-            className="btn btn-default border w-100 bg-light rounded-0 text-decoration none"
+            className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none"
           >
             Create account
           </Link>
